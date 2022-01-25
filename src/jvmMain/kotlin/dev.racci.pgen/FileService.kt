@@ -32,4 +32,7 @@ public actual object FileService {
             Json.decodeFromString(string)
         }
     }
+
+    internal actual suspend fun installNeededFiles() {
+    }
 }

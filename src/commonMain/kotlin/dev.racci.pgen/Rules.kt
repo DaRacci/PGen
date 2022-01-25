@@ -10,6 +10,7 @@ public data class Rules(
     val transform: String? = null,
     val separatorChar: String? = null,
     val separatorAlphabet: String? = null,
+    val matchRandomChar: Boolean? = null,
     val digitsBefore: Int? = null,
     val digitsAfter: Int? = null,
 )

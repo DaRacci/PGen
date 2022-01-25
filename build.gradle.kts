@@ -24,15 +24,19 @@ tasks.shadowJar {
     configurations = listOf(runtimeClasspath)
 }
 
+val mingwPath = File(System.getenv("MINGW64_DIR") ?: "C:/msys64/mingw64")
+
 kotlin {
 
     explicitApi()
 
     jvm()
 
-    linuxX64() {
-        compilations["main"].enableEndorsedLibs = false
-        binaries {
+    infix fun <T> T.and(other: T) = listOf(this, other)
+
+    (mingwX64() and linuxX64()).forEach { platform ->
+        platform.compilations["main"].enableEndorsedLibs = false
+        platform.binaries {
             executable {
                 entryPoint = "dev.racci.pgen.main"
             }
@@ -59,12 +63,21 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation("io.ktor:ktor-client-core:1.6.7")
-                implementation("io.ktor:ktor-client-curl:1.6.7")
                 implementation("com.soywiz.korlibs.korio:korio:2.4.10")
             }
         }
-        val linuxX64Main by getting { dependsOn(desktopMain) }
-//        val mingwX64Main by getting { dependsOn(desktopMain) }
+        val linuxX64Main by getting {
+            dependsOn(desktopMain)
+            dependencies {
+                //implementation("io.ktor:ktor-client-curl:1.6.7")
+            }
+        }
+        val mingwX64Main by getting {
+            dependsOn(desktopMain)
+            dependencies {
+                //implementation("com.squareup.okhttp3:okhttp:4.9.3")
+            }
+        }
         val jvmMain by getting {
             dependsOn(commonMain)
             dependencies {
