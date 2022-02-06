@@ -1,0 +1,4 @@
+headers = /home/racci/Documents/Coding/PGenLib/src/nativeInterop/cinterop/openssl/ssl.h
+libraryPaths = /home/racci/Documents/Coding/PGenLib/src/nativeInterop/cinterop
+staticLibraries = libssl.a
+linkerOpts.mingw = -lws2_32 -lwldap32 -lcrypt32

@@ -43,10 +43,19 @@ kotlin {
         }
     }
 
+    mingwX64 {
+        val main by compilations.getting
+        val libcurl by main.cinterops.creating
+        val libssl by main.cinterops.creating
+        val zlib by main.cinterops.creating
+        val libcrypto by main.cinterops.creating
+    }
+
     sourceSets {
 
         all {
             languageSettings {
+                optIn("kotlin.RequiresOptIn")
                 optIn("kotlinx.serialization.ExperimentalSerializationApi")
             }
         }
@@ -62,25 +71,26 @@ kotlin {
         val desktopMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation("io.ktor:ktor-client-core:1.6.7")
+                implementation("io.ktor:ktor-client-core:2.0.0-beta-1")
+                implementation("io.ktor:ktor-client-curl:2.0.0-beta-1")
                 implementation("com.soywiz.korlibs.korio:korio:2.4.10")
             }
         }
         val linuxX64Main by getting {
             dependsOn(desktopMain)
             dependencies {
-                //implementation("io.ktor:ktor-client-curl:1.6.7")
             }
         }
         val mingwX64Main by getting {
             dependsOn(desktopMain)
             dependencies {
-                //implementation("com.squareup.okhttp3:okhttp:4.9.3")
+                // implementation("com.squareup.okhttp3:okhttp:4.9.3")
             }
         }
         val jvmMain by getting {
             dependsOn(commonMain)
             dependencies {
+                implementation("io.ktor:ktor-client-java:2.0.0-beta-1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.3.2")
             }
         }

@@ -9,7 +9,7 @@ public actual fun transformer(
     mode: String,
 ): MutableList<String> {
     val words: MutableList<String> = list.toMutableList()
-    when (mode) {
+    when (mode.uppercase()) {
         "NONE" -> {}
         "CAPITALISE" -> words.replaceAll { it.lowercase().replaceFirstChar { l -> l.titlecase() } }
         "CAPITALISE_ALL_BUT_FIRST_LETTER" -> words.replaceAll { it.uppercase().replaceFirstChar { l -> l.lowercase() } }

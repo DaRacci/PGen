@@ -2,16 +2,35 @@ package dev.racci.pgen
 
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
-import kotlinx.coroutines.cancel
+import kotlinx.cli.ExperimentalCli
+import kotlinx.cli.Subcommand
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlin.random.Random
 import kotlin.random.nextInt
 
+@OptIn(ExperimentalCli::class)
 public fun main(args: Array<String>) {
     runBlocking {
         val parser = ArgParser("PGen")
 
-        val preset by parser.option(ArgType.String, "file", "f", "Point to a file to use for the options.")
+        var presetRules = Rules()
+        class File : Subcommand("file", "File settings") {
+
+            val createDefaultFile by argument(ArgType.Boolean, "create", "Creates a new default file in the folder where the jar file is located.")
+            val read by argument(ArgType.Boolean, "read", "Read from the existing file, This will create a new one if one doesn't exist.")
+            val readFrom by argument(ArgType.String, "readFrom", "Read from the specified file.")
+
+            override fun execute() {
+                runBlocking {
+                    createDefaultFile.takeIf { it }?.let { FileService.createDefaultFile(it) }
+                    read.takeIf { it }?.let { FileService.getRulePreset(null)?.let { presetRules = it } }
+                    readFrom.let { path -> FileService.getRulePreset(path)?.let { presetRules = it } }
+                }
+            }
+        }
+
         val words by parser.option(ArgType.Int, "words", "w", "Amount of full words.")
         val minLength by parser.option(ArgType.Int, "minLength", "ml", "Minimum length of words.")
         val maxLength by parser.option(ArgType.Int, "maxLength", "Ml", "Maximum length of words.")
@@ -22,32 +41,33 @@ public fun main(args: Array<String>) {
         val digitsBefore by parser.option(ArgType.Int, "digitsBefore", "db", "Sets how may digits should be before the password.")
         val digitsAfter by parser.option(ArgType.Int, "digitsAfter", "da", "Sets how many digits should be after the password.")
         val debug by parser.option(ArgType.Boolean, "debug", "d", "Enables debug mode.")
-        val install by parser.option(ArgType.Boolean, "install", "i", "Install PGen to the system (run from cmd or powershell directly).")
+        // val install by parser.option(ArgType.Boolean, "install", "i", "Install PGen to the system (run from cmd or powershell directly).")
+
+        val file = File()
+        parser.subcommands(file)
 
         parser.parse(args)
 
-        if (install == true) {
-            FileService.installNeededFiles()
-            this.cancel()
-        }
+//        if (install == true) {
+//            FileService.installNeededFiles()
+//            this.cancel()
+//        }
 
         debug?.let { Logger.debug = it }
 
         Logger.debug { "Debugging mode Enabled" }
 
-        val filePreset: Rules? = FileService.getRulePreset(preset)
-
         val finalRules =
             Rules(
-                words = words ?: filePreset?.words ?: 2,
-                minLength = minLength ?: filePreset?.minLength ?: 5,
-                maxLength = maxLength ?: filePreset?.maxLength ?: 7,
-                transform = transform ?: filePreset?.transform ?: "CAPITALISE",
-                separatorChar = separatorChar ?: filePreset?.separatorChar ?: "RANDOM",
-                separatorAlphabet = separatorAlphabet ?: filePreset?.separatorAlphabet ?: "!@$%.&*-+=?:;",
-                matchRandomChar = matchRandomChar ?: filePreset?.matchRandomChar ?: false,
-                digitsBefore = digitsBefore ?: filePreset?.digitsBefore ?: 0,
-                digitsAfter = digitsAfter ?: filePreset?.digitsAfter ?: 3,
+                words = words ?: presetRules.words,
+                minLength = minLength ?: presetRules.minLength,
+                maxLength = maxLength ?: presetRules.maxLength,
+                transform = transform ?: presetRules.transform,
+                separatorChar = separatorChar ?: presetRules.separatorChar,
+                separatorAlphabet = separatorAlphabet ?: presetRules.separatorAlphabet,
+                matchRandomChar = matchRandomChar ?: presetRules.matchRandomChar,
+                digitsBefore = digitsBefore ?: presetRules.digitsBefore,
+                digitsAfter = digitsAfter ?: presetRules.digitsAfter,
             )
 
         Logger.debug { "Your final rule set is $finalRules" }
@@ -56,18 +76,18 @@ public fun main(args: Array<String>) {
     }
 }
 
-public fun generate(rules: Rules) {
-
+public suspend fun generate(rules: Rules): Unit = withContext(Dispatchers.Unconfined) {
     val map = FileService.wordMap
-    val words = rules.words ?: 2
-    val minLength = rules.minLength ?: 5
-    val maxLength = rules.maxLength ?: 7
-    val transform = rules.transform ?: "CAPITALISE"
-    val separatorChar = rules.separatorChar ?: "RANDOM"
-    val separatorAlphabet = rules.separatorAlphabet ?: "!@$%.&*-+="
-    val matchRandomChar = rules.matchRandomChar ?: false
-    val digitsBefore = rules.digitsBefore ?: 0
-    val digitsAfter = rules.digitsAfter ?: 3
+
+    val words = rules.words
+    val minLength = rules.minLength
+    val maxLength = rules.maxLength
+    val transform = rules.transform
+    val separatorChar = rules.separatorChar
+    val separatorAlphabet = rules.separatorAlphabet
+    val matchRandomChar = rules.matchRandomChar
+    val digitsBefore = rules.digitsBefore
+    val digitsAfter = rules.digitsAfter
 
     var finalPassword = ""
     val seed = Random.nextLong()
@@ -97,7 +117,7 @@ public fun generate(rules: Rules) {
     Logger.debug { "Transformed words: $genWords" }
 
     var selectedRandom: Char? = null
-    when (separatorChar) {
+    when (separatorChar.uppercase()) {
         "NONE" -> genWords.forEach { finalPassword += it }
         "RANDOM" -> genWords.forEach { w ->
             finalPassword +=

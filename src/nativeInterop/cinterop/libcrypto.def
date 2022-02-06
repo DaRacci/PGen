@@ -1,0 +1,12 @@
+headers = openssl/crypto.h openssl/aes.h
+compilerOpts = -I/home/racci/Documents/Coding/PGenLib/src/nativeInterop/cinterop
+libraryPaths = /home/racci/Documents/Coding/PGenLib/src/nativeInterop/cinterop
+staticLibraries = libcrypto.a
+linkerOpts.mingw = -lws2_32 -lwldap32 -lcrypt32
+
+---
+
+AES_KEY* returnAESkeyCPointer(){
+   AES_KEY *AESkey = malloc(sizeof(AES_KEY));
+   return AESkey;
+}
