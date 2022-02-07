@@ -13,20 +13,12 @@ import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 public actual object FileService {
 
     private val parentFolder by lazy {
         FileService::class.java.protectionDomain.codeSource.location.path.substringBeforeLast("/")
-    }
-
-    private val json by lazy {
-        Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-        }
     }
 
     public actual val wordMap: MutableMap<Int, Set<String>> by lazy {
