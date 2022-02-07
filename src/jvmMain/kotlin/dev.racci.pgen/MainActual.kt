@@ -12,9 +12,8 @@ public actual fun transformer(
     when (mode.uppercase()) {
         "NONE" -> {}
         "CAPITALISE" -> words.replaceAll { it.lowercase().replaceFirstChar { l -> l.titlecase() } }
-        "CAPITALISE_ALL_BUT_FIRST_LETTER" -> words.replaceAll { it.uppercase().replaceFirstChar { l -> l.lowercase() } }
+        "UPPERCASE_ALL_BUT_FIRST_LETTER" -> words.replaceAll { it.uppercase().replaceFirstChar { l -> l.lowercase() } }
         "UPPERCASE" -> words.replaceAll { it.uppercase() }
-        "LOWERCASE" -> words.replaceAll { it.lowercase() }
         "RANDOM" -> words.replaceAll {
             val cList = it.toMutableList()
             cList.replaceAll { c -> if (Random.nextBoolean()) c.uppercaseChar() else c }
