@@ -5,8 +5,10 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
+val runNumber: String = System.getenv("GITHUB_RUN_NUMBER") ?: "DEV"
+
 group = "dev.racci"
-version = "1.0"
+version = "1.0-$runNumber"
 
 repositories {
     mavenCentral()

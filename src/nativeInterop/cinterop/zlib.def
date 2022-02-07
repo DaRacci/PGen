@@ -1,4 +1,0 @@
-headers = /home/racci/Documents/Coding/PGenLib/src/nativeInterop/cinterop/zlib/zlib.h
-headerFilter = /home/racci/Documents/Coding/PGenLib/src/nativeInterop/cinterop/zlib/*
-libraryPaths = /home/racci/Documents/Coding/PGenLib/src/nativeInterop/cinterop
-staticLibraries = libz.a

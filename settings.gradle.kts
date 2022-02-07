@@ -1,3 +1,1 @@
-
-rootProject.name = "PGenLib"
-
+rootProject.name = "PGen"
