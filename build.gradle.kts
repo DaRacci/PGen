@@ -48,6 +48,7 @@ application {
 }
 
 tasks.shadowJar {
+    archiveClassifier.set("")
     val target = kotlin.targets.getAt("jvm")
     from(target.compilations["main"].output)
     val runtimeClasspath = target.compilations["main"].compileDependencyFiles
