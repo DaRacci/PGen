@@ -6,15 +6,37 @@ plugins {
 }
 
 group = "dev.racci"
-// this is kinda disgusting but it keeps it short
-// TODO make this nicer
-version = with(System.getenv("GITHUB_RUN_NUMBER") ?: "DEV") {
-    if (this == "DEV") return@with this
-    val split = this.toCharArray()
-    val major = if (split.size > 3) {
-        split.joinToString(".", limit = 2)
-    } else if (split[0] == '0') 1 else split[0]
-    "$major.${split.getOrElse(1) { '0' }}.${split.getOrElse(2) { '0' }}"
+version = if (System.getenv("GITHUB_RUN_NUMBER") == null) "DEV" else {
+    val runNumber = System.getenv("GITHUB_RUN_NUMBER")
+    val major = getMajor(runNumber)
+    val minor = getMinor(runNumber)
+    val patch = getPatch(runNumber)
+    "$major.$minor.$patch"
+}
+
+fun getMajor(input: String): String {
+    val length = input.length
+    return if (length > 2) {
+        var str = ""
+        for ((i, c) in input.withIndex()) {
+            if (i < length - 2) {
+                str += c
+            } else break
+        }
+        str
+    } else "0"
+}
+
+fun getMinor(input: String): Char {
+    val length = input.length
+    return if (length > 1) {
+        input.dropLast(1).last()
+    } else '0'
+}
+
+fun getPatch(input: String): Char {
+    val length = input.length
+    return if (length < 2) input[0] else input.last()
 }
 
 repositories {
