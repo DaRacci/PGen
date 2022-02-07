@@ -21,7 +21,7 @@ Once the prerequisites are fulfilled you can download the latest version of PGen
 From the command line you can use
 ``java -jar PGen.jar`` this will run PGen with the default rules.
 
-You can use a rules file to easily change the rules used by having PGen read a json file containing those rules.
+You can use a json file to specify the rules.
 To create a new rules file you can run ``java -jar PGen.jar file create`` this will place a new rules.json file where the jar file is located.
 To use an existing rules file you can run ``java -jar PGen.jar file read`` this will read the rules.json file in the in the same directory of PGen.
 To point towards a custom location where your file is located you can run ``java -jar PGen.jar file read path/to/rules.json``
