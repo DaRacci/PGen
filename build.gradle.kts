@@ -5,10 +5,17 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-val runNumber: String = System.getenv("GITHUB_RUN_NUMBER") ?: "DEV"
-
 group = "dev.racci"
-version = "1.0-$runNumber"
+// this is kinda disgusting but it keeps it short
+// TODO make this nicer
+version = with(System.getenv("GITHUB_RUN_NUMBER") ?: "DEV") {
+    if (this == "DEV") return@with this
+    val split = this.toCharArray()
+    val major = if (split.size > 3) {
+        split.joinToString(".", limit = 2)
+    } else if (split[0] == '0') 1 else split[0]
+    "$major.${split.getOrElse(1) { '0' }}.${split.getOrElse(2) { '0' }}"
+}
 
 repositories {
     mavenCentral()
