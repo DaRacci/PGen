@@ -18,7 +18,7 @@ public object Generator {
         rules.digitsBefore.takeUnless { it < 1 }?.let { password += getDigits(it) + getSeperator() }
 
         val words = getWords(rules.words, rules.minLength, rules.maxLength)
-        val transformedWords = transformer(words, rules.transform)
+        val transformedWords = transformWords(words, rules.transform)
         password += addSeparators(transformedWords, rules.separatorChar, rules.separatorAlphabet, rules.matchRandomChar)
 
         rules.digitsAfter.takeUnless { it < 1 }?.let { password += getSeperator() + getDigits(it) }
@@ -66,6 +66,35 @@ public object Generator {
         return words
     }
 
+    private fun transformWords(
+        words: Array<String>,
+        mode: String
+    ): Array<String> {
+        val transformedWords = Array(words.size) { "" }
+        when (mode.uppercase()) {
+            "NONE" -> {}
+            "CAPITALISE" -> words.forEachIndexed { i, w -> transformedWords[i] = w.lowercase().replaceFirstChar { l -> l.titlecase() } }
+            "UPPERCASE_ALL_BUT_FIRST_LETTER" -> words.forEachIndexed { i, w -> transformedWords[i] = w.uppercase().replaceFirstChar { l -> l.lowercase() } }
+            "UPPERCASE" -> words.forEachIndexed { i, w -> transformedWords[i] = w.uppercase() }
+            "RANDOM" -> words.map(String::toCharArray).forEachIndexed { i, w ->
+                var word = ""
+                w.forEach { c -> word += if (seed.nextBoolean()) c.uppercaseChar() else c }
+                transformedWords[i] = word
+            }
+            "ALTERNATING" -> words.map(String::toCharArray).forEachIndexed { i, w ->
+                var word = ""
+                for ((i, c) in w.withIndex()) {
+                    if ((i % 2) == 0) {
+                        word += c.uppercaseChar()
+                    }
+                }
+                transformedWords[i] = word
+            }
+            else -> Logger.error { "Invalid transform mode provided: $mode" }
+        }
+        return transformedWords
+    }
+
     private fun addSeparators(
         words: Array<String>,
         separatorChar: String,
@@ -85,7 +114,7 @@ public object Generator {
             }
             str += word
         }
-        Logger.debug { "Generated string: $str" }
+        Logger.debug { "Generated words: $str" }
         return str
     }
 }
