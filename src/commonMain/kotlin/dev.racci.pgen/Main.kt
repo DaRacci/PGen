@@ -4,6 +4,8 @@ import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
 import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.Subcommand
+import kotlinx.cli.default
+import kotlinx.cli.optional
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -18,17 +20,37 @@ public fun main(args: Array<String>) {
         var presetRules = Rules()
         class File : Subcommand("file", "File settings") {
 
-            val createDefaultFile by argument(ArgType.Boolean, "create", "Creates a new default file in the folder where the jar file is located.")
-            val read by argument(ArgType.Boolean, "read", "Read from the existing file, This will create a new one if one doesn't exist.")
-            val readFrom by argument(ArgType.String, "readFrom", "Read from the specified file.")
+            val createFile = CreateFile()
+            val readFile = ReadFile()
 
-            override fun execute() {
-                runBlocking {
-                    createDefaultFile.takeIf { it }?.let { FileService.createDefaultFile(it) }
-                    read.takeIf { it }?.let { FileService.getRulePreset(null)?.let { presetRules = it } }
-                    readFrom.let { path -> FileService.getRulePreset(path)?.let { presetRules = it } }
+            init {
+                subcommands(createFile, readFile)
+            }
+
+            inner class CreateFile : Subcommand("create", "Create a new default file in the folder where the jar file is located.") {
+
+                val override by option(ArgType.Boolean, "override", "o", "Overrides the existing file with the new one.").default(false)
+
+                override fun execute() {
+                    runBlocking {
+                        FileService.createDefaultFile(true, override, true)
+                    }
                 }
             }
+
+            inner class ReadFile : Subcommand("read", "Read rules for PGen from a json file.") {
+
+                val file by argument(ArgType.String, "file", "The file to read the rules from.").optional()
+
+                override fun execute() {
+                    runBlocking {
+                        Logger.info { "Reading rules from file." }
+                        FileService.getRulePreset(file, false)?.let { rules -> presetRules = rules }
+                    }
+                }
+            }
+
+            override fun execute() {}
         }
 
         val words by parser.option(ArgType.Int, "words", "w", "Amount of full words.")
@@ -41,17 +63,11 @@ public fun main(args: Array<String>) {
         val digitsBefore by parser.option(ArgType.Int, "digitsBefore", "db", "Sets how may digits should be before the password.")
         val digitsAfter by parser.option(ArgType.Int, "digitsAfter", "da", "Sets how many digits should be after the password.")
         val debug by parser.option(ArgType.Boolean, "debug", "d", "Enables debug mode.")
-        // val install by parser.option(ArgType.Boolean, "install", "i", "Install PGen to the system (run from cmd or powershell directly).")
 
         val file = File()
         parser.subcommands(file)
 
         parser.parse(args)
-
-//        if (install == true) {
-//            FileService.installNeededFiles()
-//            this.cancel()
-//        }
 
         debug?.let { Logger.debug = it }
 

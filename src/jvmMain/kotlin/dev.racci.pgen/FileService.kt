@@ -13,20 +13,12 @@ import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import java.io.File
 import java.nio.file.Path
-import kotlin.io.path.Path
 import kotlin.system.exitProcess
 
 public actual object FileService {
 
     private val parentFolder by lazy {
         FileService::class.java.protectionDomain.codeSource.location.path.substringBeforeLast("/")
-    }
-
-    private val json by lazy {
-        Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-        }
     }
 
     public actual val wordMap: MutableMap<Int, Set<String>> by lazy {
@@ -36,11 +28,14 @@ public actual object FileService {
         }
     }
 
-    public actual suspend fun getRulePreset(filePath: String?): Rules? {
-        val file = filePath?.toFile() ?: Path.of(parentFolder, "rules.json").toFile()
-
+    public actual suspend fun getRulePreset(
+        filePath: String?,
+        override: Boolean
+    ): Rules? {
+        Logger.debug { "File path: $filePath" }
+        val file = File(filePath ?: "$parentFolder/rules.json")
+        if (!file.exists() && filePath.isNullOrEmpty()) { createDefaultFile(true, override, false) }
         try {
-            if (filePath == null && !file.exists()) { createDefaultFile(true) }
             require(file.exists()) { "${file.path} doesn't exist." }
             require(file.isFile) { "${file.path} is not a valid file." }
         } catch (e: IllegalArgumentException) {
@@ -59,16 +54,24 @@ public actual object FileService {
         }
     }
 
-    internal actual suspend fun createDefaultFile(create: Boolean) {
+    internal actual suspend fun createDefaultFile(
+        create: Boolean,
+        override: Boolean?,
+        exitAfter: Boolean
+    ) {
         if (!create) return
         Logger.debug { "Creating default file." }
         val file = Path.of(parentFolder, "rules.json").toFile()
         if (file.exists()) {
-            Logger.error { "rules.json file already exists." }
-            exitProcess(1)
+            if (override == true) {
+                Logger.debug { "Deleting existing file." }
+                file.delete()
+            } else return
         }
+        val fileCreated: Boolean
         withContext(Dispatchers.IO) {
             try {
+                fileCreated = true
                 file.createNewFile()
                 file.outputStream().use { stream ->
                     json.encodeToStream(Rules.serializer(), Rules(), stream)
@@ -77,6 +80,10 @@ public actual object FileService {
                 Logger.error { "Error while creating default file: ${ex.message}" }
                 exitProcess(1)
             }
+        }
+        if (exitAfter) {
+            if (fileCreated) Logger.info { "Created new Default file." }
+            exitProcess(0)
         }
     }
 
