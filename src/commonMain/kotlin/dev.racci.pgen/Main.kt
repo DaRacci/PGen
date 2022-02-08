@@ -6,11 +6,7 @@ import kotlinx.cli.ExperimentalCli
 import kotlinx.cli.Subcommand
 import kotlinx.cli.default
 import kotlinx.cli.optional
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import kotlin.random.Random
-import kotlin.random.nextInt
 
 @OptIn(ExperimentalCli::class)
 public fun main(args: Array<String>) {
@@ -88,74 +84,14 @@ public fun main(args: Array<String>) {
 
         Logger.debug { "Your final rule set is $finalRules" }
 
-        generate(finalRules)
+        val password = Generator.generate(finalRules)
+
+        Logger.info { "Generated password: $password" }
+
+        afterGen(password)
     }
 }
 
-public suspend fun generate(rules: Rules): Unit = withContext(Dispatchers.Unconfined) {
-    val map = FileService.wordMap
-
-    val words = rules.words
-    val minLength = rules.minLength
-    val maxLength = rules.maxLength
-    val transform = rules.transform
-    val separatorChar = rules.separatorChar
-    val separatorAlphabet = rules.separatorAlphabet
-    val matchRandomChar = rules.matchRandomChar
-    val digitsBefore = rules.digitsBefore
-    val digitsAfter = rules.digitsAfter
-
-    var finalPassword = ""
-    val seed = Random.nextLong()
-    val rm = Random(seed)
-    Logger.debug { "This runs seed is $seed." }
-
-    fun addDigits(int: Int) {
-        if (int < 1) return
-        for (i in 1..int) {
-            finalPassword += Random.nextInt(0, 9)
-        }
-    }
-
-    addDigits(digitsBefore)
-    Logger.debug { "Added digits before: $finalPassword" }
-
-    var genWords = mutableListOf<String>()
-    for (num in 1..words) {
-        val r = rm.nextInt(minLength..maxLength)
-        Logger.debug { "Random word length: $r" }
-        genWords += map[r]!!.random()
-    }
-    Logger.debug { "Selected words: $genWords" }
-
-    genWords = transformer(genWords, transform)
-
-    Logger.debug { "Transformed words: $genWords" }
-
-    var selectedRandom: Char? = null
-    when (separatorChar.uppercase()) {
-        "NONE" -> genWords.forEach { finalPassword += it }
-        "RANDOM" -> genWords.forEach { w ->
-            finalPassword +=
-                w + if (matchRandomChar) {
-                if (selectedRandom == null) {
-                    selectedRandom = separatorAlphabet.random()
-                }
-                selectedRandom
-            } else separatorAlphabet.random()
-        }
-        else -> genWords.forEach { w -> finalPassword += "$w${separatorChar.first()}" }
-    }
-    Logger.debug { "After adding words and separator chars: $finalPassword" }
-
-    addDigits(digitsAfter)
-    Logger.debug { "Added digits after: $finalPassword" }
-
-    Logger.info { "Generated password: $finalPassword" }
-
-    afterGen(finalPassword)
-}
-
-public expect fun transformer(list: List<String>, mode: String): MutableList<String>
+public expect fun transformer(list: Array<String>, mode: String): Array<String>
 
 public expect fun afterGen(password: String)

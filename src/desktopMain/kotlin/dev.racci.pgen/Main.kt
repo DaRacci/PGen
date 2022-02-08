@@ -4,9 +4,9 @@ import com.soywiz.kmem.isEven
 import kotlin.random.Random
 
 public actual fun transformer(
-    list: List<String>,
+    list: Array<String>,
     mode: String,
-): MutableList<String> {
+): Array<String> {
     val words: MutableList<String> = list.toMutableList()
     when (mode) {
         "NONE" -> {}
@@ -18,7 +18,7 @@ public actual fun transformer(
         "ALTERNATING" -> words.replaceAll { it.toCharArray().mapIndexed { i, c -> if (i.isEven) c.uppercaseChar() else c }.toString() }
         else -> error { "Invalid transform mode provided: $mode" }
     }
-    return words
+    return words.toTypedArray()
 }
 
 public actual fun afterGen(password: String) {
