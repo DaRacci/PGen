@@ -92,6 +92,4 @@ public fun main(args: Array<String>) {
     }
 }
 
-public expect fun transformer(list: Array<String>, mode: String): Array<String>
-
 public expect fun afterGen(password: String)
