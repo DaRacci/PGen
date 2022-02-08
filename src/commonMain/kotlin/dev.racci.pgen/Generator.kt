@@ -13,22 +13,24 @@ public object Generator {
     public fun generate(rules: Rules): String {
         var password = ""
 
-        rules.digitsBefore.takeUnless { it < 1 }?.let { password += getDigits(it) }
+        val getSeperator = { getSeparator(rules.separatorChar, rules.separatorAlphabet, rules.matchRandomChar)?.toString() ?: "" }
+
+        rules.digitsBefore.takeUnless { it < 1 }?.let { password += getDigits(it) + getSeperator() }
 
         val words = getWords(rules.words, rules.minLength, rules.maxLength)
         val transformedWords = transformer(words, rules.transform)
         password += addSeparators(transformedWords, rules.separatorChar, rules.separatorAlphabet, rules.matchRandomChar)
 
-        rules.digitsAfter.takeUnless { it < 1 }?.let { password += getDigits(it) }
+        rules.digitsAfter.takeUnless { it < 1 }?.let { password += getSeperator() + getDigits(it) }
         return password
     }
 
-    private fun getDigits(int: Int): IntArray {
-        val digits = IntArray(int)
+    private fun getDigits(int: Int): String {
+        var digits = ""
         for (i in 0 until int) {
-            digits[i] = seed.nextInt(0, 9)
+            digits += seed.nextInt(0, 9)
         }
-        Logger.debug { "Generated digits: ${digits.joinToString()}" }
+        Logger.debug { "Generated digits: $digits" }
         return digits
     }
 
