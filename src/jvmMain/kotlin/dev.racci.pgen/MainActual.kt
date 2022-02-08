@@ -3,11 +3,12 @@ package dev.racci.pgen
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import kotlin.random.Random
+import kotlin.system.exitProcess
 
 public actual fun transformer(
-    list: List<String>,
+    list: Array<String>,
     mode: String,
-): MutableList<String> {
+): Array<String> {
     val words: MutableList<String> = list.toMutableList()
     when (mode.uppercase()) {
         "NONE" -> {}
@@ -30,7 +31,7 @@ public actual fun transformer(
         }
         else -> Logger.error { "Invalid transform mode provided: $mode" }
     }
-    return words
+    return words.toTypedArray()
 }
 
 public actual fun afterGen(password: String) {
@@ -38,4 +39,5 @@ public actual fun afterGen(password: String) {
     val cb = tk.systemClipboard
     val strSel = StringSelection(password)
     cb.setContents(strSel, null)
+    exitProcess(0)
 }
