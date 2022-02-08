@@ -9,6 +9,7 @@ internal val json by lazy {
     Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
+        prettyPrint = true
         isLenient = true
     }
 }
@@ -17,9 +18,9 @@ public expect object FileService {
 
     public val wordMap: MutableMap<Int, Set<String>>
 
-    public suspend fun getRulePreset(filePath: String?): Rules?
+    public suspend fun getRulePreset(filePath: String?, override: Boolean): Rules?
 
-    internal suspend fun createDefaultFile(create: Boolean)
+    internal suspend fun createDefaultFile(create: Boolean, override: Boolean?, exitAfter: Boolean)
 
     internal suspend fun installNeededFiles()
 }
