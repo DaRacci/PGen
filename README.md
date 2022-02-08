@@ -64,6 +64,18 @@ When using a rules file and parameters the hierarchy of the final rule that will
 
 This means that while using a rules file you can still overwrite it with a parameter.
 
+---
+
+### Running from a rule file
+To create a new `rules.json` file where you jar file is located you can run `java -jar PGen.jar file create`.
+You can use -o to override the existing file is it is present.
+
+To read from the `rules.json` file in the same directory as the jar file you can run `java -jar PGen.jar file read`.
+
+To read from a custom location you can run `java -jar PGen.jar file read path/to/rules.json`.
+
+---
+
 ### Rule file
 The rules file is a json file and should look something like this: 
 ```json
@@ -86,6 +98,8 @@ The values are read in a lenient mode which means that string keys aren't requir
 however it is still recommended to use stricter standard json rules.
 
 When using a rules file you aren't required to include all keys and values, any missing keys have to default rules used.
+
+---
 
 ### Running from a script
 Instead of writing `java -jar PGen.jar` and whatever options you need, you can instead use a batch, powershell or shell file like these:
