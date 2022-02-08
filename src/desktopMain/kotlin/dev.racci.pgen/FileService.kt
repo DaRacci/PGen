@@ -6,7 +6,6 @@ import com.soywiz.korio.stream.readAll
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.utils.EmptyContent.contentLength
 import io.ktor.http.contentLength
 import io.ktor.utils.io.bits.lowInt
 import kotlinx.cinterop.toKString
@@ -18,7 +17,10 @@ public actual object FileService {
 
     public actual val wordMap: MutableMap<Int, Set<String>> by lazy { TODO() }
 
-    public actual suspend fun getRulePreset(filePath: String?): Rules? {
+    public actual suspend fun getRulePreset(
+        filePath: String?,
+        override: Boolean
+    ): Rules? {
         filePath ?: return null
         val file = localVfs(filePath)
 
@@ -52,5 +54,9 @@ public actual object FileService {
         Logger.debug { byteArray.toKString() }
     }
 
-    internal actual suspend fun createDefaultFile(create: Boolean) { TODO() }
+    internal actual suspend fun createDefaultFile(
+        create: Boolean,
+        override: Boolean?,
+        exitAfter: Boolean
+    ) { TODO() }
 }
