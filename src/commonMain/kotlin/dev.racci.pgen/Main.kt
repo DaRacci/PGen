@@ -25,23 +25,24 @@ public fun main(args: Array<String>) {
 
             inner class CreateFile : Subcommand("create", "Create a new default file in the folder where the jar file is located.") {
 
+                var execute = false
                 val override by option(ArgType.Boolean, "override", "o", "Overrides the existing file with the new one.").default(false)
 
                 override fun execute() {
                     runBlocking {
-                        FileService.createDefaultFile(true, override, true)
+                        execute = true
                     }
                 }
             }
 
             inner class ReadFile : Subcommand("read", "Read rules for PGen from a json file.") {
 
+                var execute = false
                 val file by argument(ArgType.String, "file", "The file to read the rules from.").optional()
 
                 override fun execute() {
                     runBlocking {
-                        Logger.info { "Reading rules from file." }
-                        FileService.getRulePreset(file, false)?.let { rules -> presetRules = rules }
+                        execute = true
                     }
                 }
             }
@@ -58,6 +59,7 @@ public fun main(args: Array<String>) {
         val separatorAlphabet by parser.option(ArgType.String, "separatorAlphabet", "sa", "Defines the random alphabet used between words.")
         val digitsBefore by parser.option(ArgType.Int, "digitsBefore", "db", "Sets how may digits should be before the password.")
         val digitsAfter by parser.option(ArgType.Int, "digitsAfter", "da", "Sets how many digits should be after the password.")
+        val amount by parser.option(ArgType.Int, "amount", "a", "Sets how many passwords to generate.")
         val debug by parser.option(ArgType.Boolean, "debug", "d", "Enables debug mode.")
 
         val file = File()
@@ -68,6 +70,9 @@ public fun main(args: Array<String>) {
         debug?.let { Logger.debug = it }
 
         Logger.debug { "Debugging mode Enabled" }
+
+        file.createFile.execute.ifTrue { FileService.createDefaultFile(file.createFile.execute, file.createFile.override, true) }
+        file.readFile.execute.ifTrue { FileService.getRulePreset(file.readFile.file, false)?.let { rules -> presetRules = rules } }
 
         val finalRules =
             Rules(
@@ -80,16 +85,24 @@ public fun main(args: Array<String>) {
                 matchRandomChar = matchRandomChar ?: presetRules.matchRandomChar,
                 digitsBefore = digitsBefore ?: presetRules.digitsBefore,
                 digitsAfter = digitsAfter ?: presetRules.digitsAfter,
+                amount = amount ?: presetRules.amount
             )
 
         Logger.debug { "Your final rule set is $finalRules" }
 
-        val password = Generator.generate(finalRules)
+        val passwords = Generator.generate(finalRules)
 
-        Logger.info { "Generated password: $password" }
+        Logger.info { "Generated password${if (passwords.size > 1) "s" else ""}:" }
+        for (password in passwords) {
+            Logger.info { password }
+        }
 
-        afterGen(password)
+        afterGen()
     }
 }
 
-public expect fun afterGen(password: String)
+private suspend infix fun Boolean?.ifTrue(block: suspend () -> Unit) {
+    if (this == true) block()
+}
+
+public expect fun afterGen()

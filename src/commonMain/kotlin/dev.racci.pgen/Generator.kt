@@ -10,19 +10,23 @@ public object Generator {
     private val seed by lazy { Random(Clock.System.now().toEpochMilliseconds()) }
     private var selectedRandom: Char? = null
 
-    public fun generate(rules: Rules): String {
-        var password = ""
+    public fun generate(rules: Rules): Array<String> {
+        val passwords = Array(rules.amount) { "" }
 
-        val getSeperator = { getSeparator(rules.separatorChar, rules.separatorAlphabet, rules.matchRandomChar)?.toString() ?: "" }
+        for (i in 0 until rules.amount) {
+            val getSeperator = { getSeparator(rules.separatorChar, rules.separatorAlphabet, rules.matchRandomChar)?.toString() ?: "" }
 
-        rules.digitsBefore.takeUnless { it < 1 }?.let { password += getDigits(it) + getSeperator() }
+            rules.digitsBefore.takeUnless { it < 1 }?.let { passwords[i] += getDigits(it) + getSeperator() }
 
-        val words = getWords(rules.words, rules.minLength, rules.maxLength)
-        val transformedWords = transformWords(words, rules.transform)
-        password += addSeparators(transformedWords, rules.separatorChar, rules.separatorAlphabet, rules.matchRandomChar)
+            val words = getWords(rules.words, rules.minLength, rules.maxLength)
+            val transformedWords = transformWords(words, rules.transform)
+            passwords[i] += addSeparators(transformedWords, rules.separatorChar, rules.separatorAlphabet, rules.matchRandomChar)
 
-        rules.digitsAfter.takeUnless { it < 1 }?.let { password += getSeperator() + getDigits(it) }
-        return password
+            rules.digitsAfter.takeUnless { it < 1 }?.let { passwords[i] += getSeperator() + getDigits(it) }
+            selectedRandom = null
+        }
+
+        return passwords
     }
 
     private fun getDigits(int: Int): String {
