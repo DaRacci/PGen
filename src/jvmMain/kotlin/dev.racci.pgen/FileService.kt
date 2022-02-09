@@ -33,7 +33,7 @@ public actual object FileService {
         override: Boolean
     ): Rules? {
         Logger.debug { "File path: $filePath" }
-        val file = File(filePath ?: "$parentFolder/rules.json")
+        val file = File(filePath ?: parentFolder, "rules.json")
         if (!file.exists() && filePath.isNullOrEmpty()) { createDefaultFile(true, override, false) }
         try {
             require(file.exists()) { "${file.path} doesn't exist." }
@@ -61,7 +61,7 @@ public actual object FileService {
     ) {
         if (!create) return
         Logger.debug { "Creating default file." }
-        val file = Path.of(parentFolder, "rules.json").toFile()
+        val file = File(parentFolder, "rules.json")
         if (file.exists()) {
             if (override == true) {
                 Logger.debug { "Deleting existing file." }

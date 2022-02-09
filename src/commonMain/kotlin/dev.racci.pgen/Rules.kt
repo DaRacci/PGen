@@ -13,4 +13,5 @@ public data class Rules(
     val matchRandomChar: Boolean = true,
     val digitsBefore: Int = 0,
     val digitsAfter: Int = 3,
+    val amount: Int = 3,
 )

@@ -55,6 +55,8 @@ On top of using a rules file you can also use the following command parameters t
     This is the number of digits that will be generated at random before the words
 -da [digitsAfter]
     This is the number of digits that will be generated at random after the words
+-a [amount]
+    This is the number of passwords to generate
 ```
 
 When using a rules file and parameters the hierarchy of the final rule that will be used is as follows:
@@ -88,7 +90,8 @@ The rules file is a json file and should look something like this:
     "separatorAlphabet": "!@$%.&*-+=?:;",
     "matchRandomChar": true,
     "digitsBefore": 0,
-    "digitsAfter": 3
+    "digitsAfter": 3,
+    "amount": 3
 }
 ```
 This json file would represent the default rules used by PGen.
