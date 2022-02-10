@@ -1,9 +1,10 @@
 package dev.racci.pgen
 
+import com.github.ajalt.mordant.rendering.TextColors
+import com.github.ajalt.mordant.terminal.Terminal
 import kotlin.native.concurrent.ThreadLocal
 
-internal const val ESCAPE = '\u001B'
-internal const val RESET = "$ESCAPE[0m"
+private val terminal by lazy { Terminal() }
 
 @ThreadLocal
 public object Logger {
@@ -11,18 +12,18 @@ public object Logger {
     public var debug: Boolean = false
 
     public fun info(lazy: () -> String) {
-        println("$ESCAPE[36m[INFO]$RESET -> ${lazy()}")
+        terminal.println(TextColors.green("[INFO]") + " -> ${lazy()}")
     }
 
     public fun warn(lazy: () -> String) {
-        println("$ESCAPE[33m[WARN]$RESET -> ${lazy()}")
+        terminal.println(TextColors.yellow("[WARN]") + " -> ${lazy()}")
     }
 
     public fun error(lazy: () -> String) {
-        println("$ESCAPE[31m[ERROR]$RESET -> ${lazy()}")
+        terminal.println(TextColors.red("[ERROR]") + " -> ${lazy()}")
     }
 
     public fun debug(lazy: () -> String) {
-        if (debug) println("$ESCAPE[90m[DEBUG]$RESET -> ${lazy()}")
+        if (debug) terminal.println(TextColors.magenta("[DEBUG]") + " -> ${lazy()}")
     }
 }
