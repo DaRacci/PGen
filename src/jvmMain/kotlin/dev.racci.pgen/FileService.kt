@@ -17,7 +17,7 @@ import kotlin.system.exitProcess
 public actual object FileService {
 
     private val parentFolder by lazy {
-        FileService::class.java.protectionDomain.codeSource.location.path.substringBeforeLast("/")
+        FileService::class.java.protectionDomain.codeSource.location.path.substringBeforeLast("/").replace("%20", " ")
     }
 
     public actual val wordMap: MutableMap<Int, Set<String>> by lazy {
@@ -70,6 +70,7 @@ public actual object FileService {
                 exitProcess(1)
             } else return
         }
+        Logger.debug { "File path: ${file.path}" }
         val fileCreated: Boolean
         withContext(Dispatchers.IO) {
             try {
@@ -80,6 +81,7 @@ public actual object FileService {
                 }
             } catch (ex: Exception) {
                 Logger.error { "Error while creating default file: ${ex.message}" }
+                Logger.debug { "Stacktrace: ${ex.stackTraceToString().trim()}" }
                 exitProcess(1)
             }
         }
