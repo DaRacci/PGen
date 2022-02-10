@@ -12,7 +12,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import java.io.File
-import java.nio.file.Path
 import kotlin.system.exitProcess
 
 public actual object FileService {
@@ -66,6 +65,9 @@ public actual object FileService {
             if (override == true) {
                 Logger.debug { "Deleting existing file." }
                 file.delete()
+            } else if (exitAfter) {
+                Logger.error { "File already exists. Exiting..." }
+                exitProcess(1)
             } else return
         }
         val fileCreated: Boolean
