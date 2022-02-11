@@ -12,13 +12,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromStream
 import kotlinx.serialization.json.encodeToStream
 import java.io.File
-import java.nio.file.Path
 import kotlin.system.exitProcess
 
 public actual object FileService {
 
     private val parentFolder by lazy {
-        FileService::class.java.protectionDomain.codeSource.location.path.substringBeforeLast("/")
+        FileService::class.java.protectionDomain.codeSource.location.path.substringBeforeLast("/").replace("%20", " ")
     }
 
     public actual val wordMap: MutableMap<Int, Set<String>> by lazy {
@@ -66,8 +65,12 @@ public actual object FileService {
             if (override == true) {
                 Logger.debug { "Deleting existing file." }
                 file.delete()
+            } else if (exitAfter) {
+                Logger.error { "File already exists. Exiting..." }
+                exitProcess(1)
             } else return
         }
+        Logger.debug { "File path: ${file.path}" }
         val fileCreated: Boolean
         withContext(Dispatchers.IO) {
             try {
@@ -78,6 +81,7 @@ public actual object FileService {
                 }
             } catch (ex: Exception) {
                 Logger.error { "Error while creating default file: ${ex.message}" }
+                Logger.debug { "Stacktrace: ${ex.stackTraceToString().trim()}" }
                 exitProcess(1)
             }
         }
