@@ -6,10 +6,16 @@ All notable changes to this project will be documented in this file.
 ### Bug Fixes
 
 - Build agaisnt java 8 for confirmed backwards compatibility
+- Use mordant for terminal colours since it handles things which i don't really want to
+- Fix error when path has spaces for windows
 
 ### Documentation
 
 - Update changelog generation rules to include previous commits too
+
+### Features
+
+- Uses memorable word list now so rare words such as 'hatte' don't appear.
 
 ### Other
 
