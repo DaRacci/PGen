@@ -108,7 +108,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation("io.ktor:ktor-client-core:2.0.0-beta-1")
-                implementation("io.ktor:ktor-client-curl:2.0.0-beta-1")
+                implementation("io.ktor:ktor-client-curl:2.0.1")
                 implementation("com.soywiz.korlibs.korio:korio:2.5.3")
             }
         }
