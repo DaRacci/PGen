@@ -126,7 +126,7 @@ kotlin {
         val jvmMain by getting {
             dependsOn(commonMain)
             dependencies {
-                implementation("io.ktor:ktor-client-java:2.0.0-beta-1")
+                implementation("io.ktor:ktor-client-java:2.0.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.3.2")
             }
         }
