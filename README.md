@@ -1,3 +1,5 @@
+### Archived because this was rewritten in rust at [PGen-Rust](https://github.com/DaRacci/PGen-Rust)
+
 <h1 align="center">PGen</h1>
 
  PGen is currently a small command line tool written in kotlin and compiled to Java.
